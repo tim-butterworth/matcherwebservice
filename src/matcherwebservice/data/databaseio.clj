@@ -1,4 +1,4 @@
-(ns matcherwebservice.data.datagetters
+(ns matcherwebservice.data.databaseio
   (:require [matcherwebservice.data.database :as db]))
 (import java.util.UUID)
 (defn makehash [un pw]
@@ -6,20 +6,36 @@
 (defn get-people [adminhash]
   (db/read-from-db "Select people.* from pm.admin_users admin join pm.people people on people.admin_id = admin.admin_id where admin.admin_hash = ? "
    [adminhash]))
-(defn attach-people [admin-lst]
+(defn get-groups [adminhash]
+  (db/read-from-db "Select gr.* from pm.admin_users admin join pm.group gr on admin.admin_id = gr.admin_id where admin.admin_hash = ? "
+                   [adminhash]))
+(defn attach-children [parent-lst child-fn]
   (map
+   child-fn
+   parent-lst))
+(defn attach-people [admin-lst]
+  (attach-children
+   admin-lst
    (fn [n]
-     (assoc n :people (get-people (:admin_hash n))))
-   admin-lst))
+     (assoc n :people (get-people (:admin_hash n))))))
+(defn attach-groups [admin-lst]
+  (attach-children
+   admin-lst
+   (fn [n]
+     (assoc n :groups (get-groups (:admin_hash n))))))
 (defn get-admins []
-  (attach-people
-   (db/read-from-db "select * from pm.admin_users" [])))
+  (->
+   (db/read-from-db "select * from pm.admin_users" [])
+   attach-people
+   attach-groups))
 (defn get-admin [adminhash]
   (first
-   (attach-people
+   (->
     (db/read-from-db
      "select * from pm.admin_users where admin_hash = ? "
-     [adminhash]))))
+     [adminhash])
+    attach-people
+    attach-groups)))
 (defn create-admin [username password]
   (db/write-to-db!
    :pm.admin_users
@@ -28,6 +44,10 @@
     :admin_hash (makehash
                  username
                  password)}))
+(defn delete-admin [adminhash]
+  (db/delete!
+   "DELETE from pm.admin_users where admin_hash = ? "
+   [adminhash]))
 (defn get-person [adminhash name]
   (first
    (db/read-from-db "Select people.* from pm.admin_users admin join pm.people people on people.admin_id = admin.admin_id where admin.admin_hash = ? and people.name = ? "
@@ -42,9 +62,9 @@
        :name name
        :email email})
      {"error" "admin does not exist"})))
-(defn get-groups [adminhash]
-  (db/read-from-db "Select gr.* from pm.admin_users admin join pm.group gr on admin.admin_id = gr.admin_id where admin.admin_hash = ? "
-                   [adminhash]))
+(defn get-group [adminhash name]
+  (first
+   (db/read-from-db "Select gr.* from")))
 (defn create-group [adminhash name]
   (let [admin-id (:admin_id (get-admin adminhash))]
    (if (not (= nil admin-id))

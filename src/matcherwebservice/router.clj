@@ -1,7 +1,7 @@
 (ns matcherwebservice.router
   (:require [matcherwebservice.data.database :as db])
   (:require [matcherwebservice.util.routerutil :as routerutil])
-  (:require [matcherwebservice.data.datagetters :as data]))
+  (:require [matcherwebservice.data.databaseio :as data]))
 (import java.util.UUID)
 
 (defn destruct [in-uri]
@@ -22,8 +22,8 @@
     (fn [params] "")]
    [{:delete "/admin/:userhash"}
     (fn [params]
-      (db/delete! "DELETE from pm.admin_users where admin_hash = ? "
-                  [(params :userhash)]))]
+      (data/delete-admin (params :userhash)))]
+;      (db/delete! "DELETE from pm.admin_users where admin_hash = ? " [(params :userhash)]))]
    [{:get "/admin/:userhash/people"}
     (fn [params]
       (data/get-people (params :userhash)))]
