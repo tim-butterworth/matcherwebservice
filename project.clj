@@ -9,7 +9,8 @@
                  [ring/ring-json "0.2.0"]
                  [org.apache.openejb/openejb-bonecp "4.6.0"]
                  [postgresql "9.1-901.jdbc4"]
-                 [org.clojure/java.jdbc "0.3.2"]]
+                 [org.clojure/java.jdbc "0.3.2"]
+                 [cheshire "5.3.1"]]
   :plugins [[lein-ring "0.8.7"]]
   :ring {:handler matcherwebservice.core/app}
   :target-path "target/%s")

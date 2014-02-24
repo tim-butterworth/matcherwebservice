@@ -1,5 +1,5 @@
 (ns matcherwebservice.router
-  (:require [matcherwebservice.data.database :as db])
+  (:use  ring.util.response)
   (:require [matcherwebservice.util.routerutil :as routerutil])
   (:require [matcherwebservice.data.databaseio :as data]))
 (import java.util.UUID)
@@ -12,33 +12,33 @@
    (clojure.string/split in-uri #"/")))
 (def rest-uri-fn-lst
   [[{:get "/admin"}
-    (fn [params] (data/get-admins))]
+    (fn [params] {:type :json :data (data/get-admins)})]
    [{:get "/admin/:userhash"}
     (fn [params]
-      (data/get-admin (params :userhash)))]
+      {:type :json :data (data/get-admin (params :userhash))})]
    [{:post "/admin/:username"}
-    (fn [params] (data/create-admin (params :username) (params :password)))]
+    (fn [params]
+      {:type :json :data (data/create-admin (params :username) (params :password))})]
    [{:put "/admin"}
     (fn [params] "")]
    [{:delete "/admin/:userhash"}
     (fn [params]
-      (data/delete-admin (params :userhash)))]
-;      (db/delete! "DELETE from pm.admin_users where admin_hash = ? " [(params :userhash)]))]
+      {:type :json :data (data/delete-admin (params :userhash))})]
    [{:get "/admin/:userhash/people"}
     (fn [params]
-      (data/get-people (params :userhash)))]
+      {:type :json :data (data/get-people (params :userhash))})]
    [{:get "/admin/:userhash/person/:name"}
     (fn [params]
-      (data/get-person (params :userhash) (params :name)))]
+      {:type :json :data (data/get-person (params :userhash) (params :name))})]
    [{:post "/admin/:userhash/person/:name"}
     (fn [params]
-      (data/create-person (params :userhash) (params :name) (params :email)))]
+      {:type :json :data (data/create-person (params :userhash) (params :name) (params :email))})]
    [{:post "/admin/:userhash/group/:name"}
     (fn [params]
-      (data/create-group (params :userhash) (params :name)))]
+      {:type :json :data (data/create-group (params :userhash) (params :name))})]
    [{:get "/admin/:userhash/groups"}
     (fn [params]
-      (data/get-groups (params :userhash)))]
+      {:type :json :data (data/get-groups (params :userhash))})]
    ])
 (defn extract-from-rest-uri-fn-lst [i]
   (vec
@@ -59,7 +59,7 @@
         params (request :params)
         method-uri (routerutil/combine-request-method method uri)]
     (let [i (routerutil/find-match rest-uri-lst method-uri)]
-      ;-1 indicates that no match was found for the given uri
+                                        ;-1 indicates that no match was found for the given uri
       (if (= -1 i)
         default-response
         ((rest-fns i)

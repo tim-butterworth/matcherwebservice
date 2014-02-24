@@ -1,5 +1,6 @@
 (ns matcherwebservice.data.databaseio
-  (:require [matcherwebservice.data.database :as db]))
+  (:require [matcherwebservice.data.database :as db])
+  (:require [matcherwebservice.util.utils :as utils]))
 (import java.util.UUID)
 (defn makehash [un pw]
   (str "hasedup" un pw))
