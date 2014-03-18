@@ -39,6 +39,9 @@
    [{:get "/admin/:userhash/groups"}
     (fn [params]
       {:type :json :data (data/get-groups (params :userhash))})]
+   [{:get "/home"}
+    (fn [params]
+      {:type :html :data "<html><body><a href='https://gist.github.com/ewilson/f27ba22368c35d101d86'>https://gist.github.com/ewilson/f27ba22368c35d101d86</h1></body></html>"})]
    ])
 (defn extract-from-rest-uri-fn-lst [i]
   (vec
@@ -48,8 +51,9 @@
 (def rest-uris (extract-from-rest-uri-fn-lst 0))
 (def rest-fns (extract-from-rest-uri-fn-lst 1))
 (def default-response
-  {"ok" true
-   "name" "people match service"})
+  {:type :json
+   :data {"ok" true
+          "name" "people match service"}})
 (def rest-uri-lst
   (-> rest-uris routerutil/map-to-vec routerutil/flatten-vecs))
 (defn route [request]
