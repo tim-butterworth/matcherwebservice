@@ -1,7 +1,9 @@
 (ns matcherwebservice.router
   (:use  ring.util.response)
-  (:require [matcherwebservice.util.routerutil :as routerutil])
-  (:require [matcherwebservice.data.databaseio :as data]))
+  (:require [matcherwebservice.util.routerutil :as routerutil]
+            [matcherwebservice.getresources.getresources :as resources]
+            [matcherwebservice.data.databaseio :as data]
+            [matcherwebservice.views.views :as views]))
 (import java.util.UUID)
 
 (defn destruct [in-uri]
@@ -41,7 +43,11 @@
       {:type :json :data (data/get-groups (params :userhash))})]
    [{:get "/home"}
     (fn [params]
-      {:type :html :data "<html><body><a href='https://gist.github.com/ewilson/f27ba22368c35d101d86'>https://gist.github.com/ewilson/f27ba22368c35d101d86</h1></body></html>"})]
+      {:type :html :data (views/home)})]
+   [{:get "/resources/:type/:resource"}
+    (fn [params]
+      {:type :js-resource
+       :data (resources/fetch-resource params)})]
    ])
 (defn extract-from-rest-uri-fn-lst [i]
   (vec
