@@ -18,24 +18,34 @@
   (if (is-param key)
     (assoc mp (safe-keyword key) val)
     mp))
-(defn get-params [ilist blist]
-  (loop
-    [result {} i 0]
-    (if (< i (count ilist))
-      (let
-          [mp (assoc-path-param result (ilist i) (blist i))]
-        (recur mp (inc i)))
-      result)))
-(defn uri-matches [incoming option]
-  (if (= (count incoming) (count option))
-    (reduce (fn [result n] (if result n result)) true
-     (map
-     (fn [i o] (or
-                (= i o)
-                (is-param o)))
-     incoming
-     option))
-    false))
+(defn to-uri-list [lst]
+  (vec
+   (rest
+    (uri-split lst))))
+(defn prep-uri [uri mtch]
+  uri)
+(defn get-params [in mtch]
+  (let [incoming (prep-uri in mtch)
+        ilist (to-uri-list incoming)
+        blist (to-uri-list mtch)]
+    (loop
+        [result {} i 0]
+      (if (< i (count ilist))
+        (let
+            [mp (assoc-path-param result (ilist i) (blist i))]
+          (recur mp (inc i)))
+        result))))
+(defn uri-matches [in option]
+  (let [incoming (prep-uri in option)]
+    (if (= (count incoming) (count option))
+      (reduce (fn [result n] (if result n result)) true
+              (map
+               (fn [i o] (or
+                          (= i o)
+                          (is-param o)))
+               incoming
+               option))
+      false)))
 (defn find-match [urilist uri]
   (loop [i 0]
     (if (< i (count urilist))

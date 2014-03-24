@@ -41,10 +41,10 @@
    [{:get "/admin/:userhash/groups"}
     (fn [params]
       {:type :json :data (data/get-groups (params :userhash))})]
-   [{:get "/home"}
+   [{:get "/superadmin/home"}
     (fn [params]
-      {:type :html :data (views/home)})]
-   [{:get "/resources/:type/:resource"}
+      {:type :html :data (views/superadmin-home)})]
+   [{:get "*/page-resource/:type/:resource"}
     (fn [params]
       {:type :js-resource
        :data (resources/fetch-resource params)})]
@@ -76,6 +76,4 @@
          (routerutil/print-return
           (routerutil/keyword-merge-maps
            params
-           (routerutil/get-params
-            (vec (rest (routerutil/uri-split method-uri)))
-            (vec (rest (routerutil/uri-split (rest-uri-lst i))))))))))))
+           (routerutil/get-params method-uri (rest-uri-lst i)))))))))

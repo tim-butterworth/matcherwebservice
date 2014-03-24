@@ -1,5 +1,5 @@
 (function($, _){
-    var logincall = function(){
+    var displayAdmins = function(){
         $.ajax({
             contentType: 'application/json',
             data: {},//JSON.stringify(getData()),
@@ -19,17 +19,13 @@
             },
             processData: false,
             type: 'GET',
-            url: 'admin'
+            url: '../admin'
         });
     };
+    var logincall = function(){
+        console.log("attempting to login");
+    };
     $(document).ready(function(){
-        $(".login").click(function(){
-            console.log("clicked login");
-            var pw = $(".password")[0].value;
-            var un = $(".username")[0].value;
-            console.log("password: "+pw);
-            console.log("username: "+un);
-            logincall();
-        });
+        displayAdmins();
     });
 })($, _);
