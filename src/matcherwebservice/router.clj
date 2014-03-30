@@ -44,7 +44,7 @@
    [{:get "/superadmin/home"}
     (fn [params]
       {:type :html :data (views/superadmin-home)})]
-   [{:get "*/page-resource/:type/:resource"}
+   [{:get "/*/resources/:type/:resource"}
     (fn [params]
       {:type :js-resource
        :data (resources/fetch-resource params)})]
@@ -68,12 +68,14 @@
         method (request :request-method)
         params (request :params)
         method-uri (routerutil/combine-request-method method uri)]
-    (let [i (routerutil/find-match rest-uri-lst method-uri)]
+    (let [match-mp (routerutil/find-match rest-uri-lst method-uri)
+          i (match-mp :index)]
                                         ;-1 indicates that no match was found for the given uri
+      (println match-mp)
       (if (= -1 i)
         default-response
         ((rest-fns i)
          (routerutil/print-return
           (routerutil/keyword-merge-maps
            params
-           (routerutil/get-params method-uri (rest-uri-lst i)))))))))
+           (match-mp :params))))))))

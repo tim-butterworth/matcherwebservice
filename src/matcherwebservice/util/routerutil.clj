@@ -23,6 +23,10 @@
    (rest
     (uri-split lst))))
 (defn prep-uri [uri mtch]
+  (if (. mtch startsWith "*")
+    (let [uri-lst (uri-split uri)
+          mtch-lst (uri-split mtch)]
+      ))
   uri)
 (defn get-params [in mtch]
   (let [incoming (prep-uri in mtch)
@@ -81,3 +85,68 @@
   (clojure.core/merge (keywordize path) (keywordize request)))
 (defn makehash [un pw]
   (str un pw))
+
+(declare star-fn colon-fn standard-fn get-next-function next)
+(defn failure []
+  {:match false})
+(def parse-uri-mp
+  {:star star-fn
+   :colon colon-fn
+   :standard standard-fn})
+(defn get-next-key [crrnt]
+  (let
+      [nxt (filter
+            (fn [n] (n 1))
+            {
+             :star (. crrnt equals "*")
+             :colon (. crrnt startsWith ":")
+             })]
+    (if
+        (= 1 (count nxt))
+      ((first nxt) 0)
+      :standard)))
+(defn get-next-function [current]
+  (parse-uri-mp (get-next-key current)))
+(defn done [pattern-lst test-lst pi ti]
+  (and
+   (= pi (count pattern-lst))
+   (= ti (count test-lst))))
+(defn has-more [pattern-lst test-lst pi ti]
+  (and
+   (< pi (count pattern-lst))
+   (< ti (count test-lst))))
+(defn next-move [pattern-lst test-lst pi ti result]
+  (if (result :match)
+    (if (done pattern-lst test-lst pi ti)
+      result
+      (if (has-more pattern-lst test-lst pi ti)
+        ((get-next-function (pattern-lst pi)) pattern-lst test-lst pi ti result)
+        (failure)))
+    result))
+(defn star-fn [basis incoming bindex inindex result]
+  (if (= (incoming inindex) (basis (inc bindex)))
+    (next-move basis incoming (inc bindex) inindex result)
+    (next-move basis incoming bindex (inc inindex) result)))
+(defn colon-fn [basis incoming bindex inindex result]
+  (let [params (assoc (result :params) (safe-keyword (basis bindex)) (incoming inindex))]
+    (next-move basis incoming (inc bindex) (inc inindex) (assoc result :params params))))
+(defn standard-fn [basis incoming bindex inindex result]
+  (let [match (= (basis bindex) (incoming inindex))]
+    (next-move basis incoming (inc bindex) (inc inindex) (assoc result :match match))))
+(def parse-uri-mp
+  {:star star-fn
+   :colon colon-fn
+   :standard standard-fn})
+(defn match [base incoming]
+  (next-move (uri-split base) (uri-split incoming) 0 0 {:match true :params {}}))
+;Fix this... probably just rewrite simple recursively
+(defn match-finder [lst value matcher evaluator default]
+  (loop [i 0]
+    (if (< i (count lst))
+      (let [result (matcher (lst i) value)]
+        (if (evaluator result)
+          (assoc result :index i)
+          (recur (inc i))))
+      default)))
+(defn find-match [urilist uri]
+  (match-finder urilist uri match (fn [result] (= true (result :match))) {:index -1}))
