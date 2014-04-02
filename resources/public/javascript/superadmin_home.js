@@ -1,17 +1,24 @@
 (function($, _){
     var displayAdmins = function(){
+        var toHtml = function(admin){
+            var result = "<span class='admin'>";
+            result = result + "</br>" + "<a href='../admin/" + admin.admin_hash + "'>" + admin.admin_username + "<a/>";
+            result = result + "</br>" + admin.admin_id + "</br>";
+            result = result + "<button name='"+admin.admin_id+"'>delete</button>"
+            result = result + "</span>";
+            return result;
+        };
         $.ajax({
             contentType: 'application/json',
-            data: {},//JSON.stringify(getData()),
+            data: {},
             dataType: 'json',
             success: function(response){
                 console.log(response);
                 var data = $(".data")[0];
                 var inner = _.reduce(response, function(accume, v){
-                    accume = accume + "</br>" + "<a href='admin/" + v.admin_hash + "'>" + v.admin_username + "<a/>" ;
+                    accume = accume + toHtml(v);
                     return accume;
                 }, "");
-                console.debug(inner);
                 $(data).html(inner);
             },
             error: function(){
@@ -21,9 +28,6 @@
             type: 'GET',
             url: '../admin'
         });
-    };
-    var logincall = function(){
-        console.log("attempting to login");
     };
     $(document).ready(function(){
         displayAdmins();

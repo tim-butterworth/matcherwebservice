@@ -36,7 +36,7 @@
 (defn superadmin-home []
   (html
    (buildhtml
-    {:javascript [(insert-javascript "resources/javascript/home.js")]
+    {:javascript [(insert-javascript "resources/javascript/superadmin_home.js")]
      :body [
             [:h1 "Super Admin HOME"]
             [:div {:class "content"}

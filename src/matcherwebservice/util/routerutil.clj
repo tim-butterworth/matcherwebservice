@@ -86,7 +86,7 @@
 (defn makehash [un pw]
   (str un pw))
 
-(declare star-fn colon-fn standard-fn get-next-function next)
+(declare star-fn colon-fn standard-fn get-next-function next-move)
 (defn failure []
   {:match false})
 (def parse-uri-mp
@@ -139,7 +139,6 @@
    :standard standard-fn})
 (defn match [base incoming]
   (next-move (uri-split base) (uri-split incoming) 0 0 {:match true :params {}}))
-;Fix this... probably just rewrite simple recursively
 (defn match-finder [lst value matcher evaluator default]
   (loop [i 0]
     (if (< i (count lst))
