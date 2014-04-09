@@ -4,7 +4,7 @@
 (defn insert-javascript [nm]
   [:script {:type "text/javascript" :src nm}])
 (defn core-javascript []
-  [(insert-javascript "//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js")
+  [(insert-javascript "resources/javascript/jquery.js")
    (insert-javascript "resources/javascript/underscore.js")])
 (defn header []
   [:span {:class "links"}
